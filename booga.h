@@ -12,10 +12,12 @@
 #include <linux/slab.h>
 #include <linux/device.h>
 #include <linux/cdev.h>
+#include <linux/string.h>
 
 
 
 #define SUCCESS 0
+#define TOTAL_BOOGA_DEV 4
 
 void create_new_proc(void);
 void remoev_proc_file(void);
@@ -32,13 +34,11 @@ static int __init booga_init(void);
 static void __exit booga_exit(void);
 
 //存放设备号
-static int device_file_major_number[5] = {0,0,0,0,0};
+// static int device_file_major_number[5] = {0,0,0,0,0};
 //存放设备名
 static const char* device_name[5] = {"booga", "booga0", "booga1", "booga2", "booga3"};
 //设备引索
 static int device_index;
-//设备打开状态
-static int device_open = 0;
 //总计写入字节数
 static int total_bytes_read = 0;
 //总结读取字节数
@@ -48,21 +48,27 @@ static int dev_open_times[] = {0,0,0,0};
 //各字符串输出次数
 static int string_output_times[] = {0,0,0,0};
 //四种输出的字符串
-static char * strings[] = {"booga! booga!", "googoo! gaagaa!", "wooga! wooga!", "neka! maka!"};
+static const char * g_s_strings[4] = {"booga! booga!","googoo! gaagaa!","wooga! wooga!","neka! maka!"};
+static const char g_s_booga[] = "booga! booga!";
+static const char g_s_googoo[] = "googoo! gaagaa!";
+static const char g_s_wooga[] =  "wooga! wooga!";
+static const char g_s_neka[] = "neka! maka!";
 
+static char buff[300];
+static int buff_size = 0;
 
-static const char    g_s_Hello_World_string[] = 
-"bytes read = 0\n"
-"bytes write = 0\n"
+static char g_s_Hello_World_string[] = 
+"bytes read = %d\n"
+"bytes write = %d\n"
 "number of opens:\n"
-"  /dev/booga0 = 0 times\n"
-"  /dev/booga1 = 0 times\n"
-"  /dev/booga2 = 0 times\n"
-"  /dev/booga3 = 0 times\n"
+"  /dev/booga0 = %d times\n"
+"  /dev/booga1 = %d times\n"
+"  /dev/booga2 = %d times\n"
+"  /dev/booga3 = %d times\n"
 "strings output:\n"
-"  booga! booga! = 0 times\n"
-"  googoo! gaagaa! = 0 times\n"
-"  wooga! wooga! = 0 times\n"
+"  booga! booga! = %d times\n"
+"  googoo! gaagaa! = %d times\n"
+"  wooga! wooga! = %d times\n"
 "  neka! maka! = %d times\n";
 
 static const ssize_t g_s_Hello_World_size = sizeof(g_s_Hello_World_string);
@@ -81,5 +87,6 @@ static dev_t dev;
 struct class *dev_class = NULL;
 static struct cdev led_cdev;
 
+static int current_dev_number;
 
 #endif
