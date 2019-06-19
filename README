@@ -1,0 +1,38 @@
+1.项目说明
+此项目是一个简单的linux驱动程序,用户初识linux内核以及驱动
+
+2.运行方法
+此项目需要先编译，之后才能载入模块
+编译项目：
+    make
+将booga模块载入内核中：
+    make load
+将booga模块从内核中卸载：
+    make unload
+编译测试文件：
+    make test
+清理文件夹：
+    make clean
+运行自动测试：
+    sh plan.sh
+
+3.使用说明
+用户可以从booga设备中读取内容，而booga则会向用户随机返回结果
+    cat /dev/booga0
+    cat /dev/booga1
+    cat /dev/booga2
+    cat /dev/booga3
+若用户指定长度，则会返回定长结果
+    ./test-booga 1 100 read
+用户也可以向booga中写入内容
+    ./test-booga 1 100 write
+用户也可以查看设备统计信息
+    cat /proc/driver/booga
+
+4.项目组成
+    test-booga.c    测试文件
+    booga.h         头文件
+    main.c          模块代码文件
+    Makefile        编译所需文件
+    README          说明文件
+    plan.sh         自动测试脚本
