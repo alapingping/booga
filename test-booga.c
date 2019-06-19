@@ -15,23 +15,23 @@ const char * tip_info[] = {
     "Attempting to write to booga device",
     "Usage: test-booga <minor number> <buffersize> <read|write>",
     "Error: device number should be a integer and between 0 and 3",
-    "Error: buffer size should be between 0 and 1000",
+    "Error: buffer size should be between 0 and 65536",
     "Error: opeartion should be \'read\' or \'write\'"};
 
 int fd = 0;
+int judge_digit(char *);
 
 int main(int argc, char * argv[]){
 
-    
     if( argc != 4 )
         printf("%s\n", tip_info[PARA_MISMATCH]);
-    else if( strlen(argv[1]) != 1 ){
+    else if( strlen(argv[1]) != 1 ||  *argv[1] < '0' || *argv[1] > '3'){
         printf("%s\n", tip_info[DEVICE_NUMBER_MISMATCH]);
     }
     else if( *argv[1] > 51 || *argv[1] < 48 ){
         printf("%s\n", tip_info[DEVICE_NUMBER_MISMATCH]);
     }
-    else if( strlen(argv[2]) > 3 ){
+    else if( judge_digit(argv[2]) ){
         printf("%s\n", tip_info[BUFFER_SIZE_MISMATCH]);
     }
     else if( 0 != strcmp(argv[3], "write") && 0 != strcmp(argv[3], "read") ){
@@ -39,7 +39,7 @@ int main(int argc, char * argv[]){
     }
     else {
         
-        char *dev_name = (char *) malloc(strlen("/dev/booga") + strlen(argv[2]));
+        char *dev_name = (char *) malloc( (strlen("/dev/booga") + strlen(argv[2])) * sizeof(char) );
         strcat(dev_name,"/dev/booga");
         strcat(dev_name,argv[1]);
         fd = open(dev_name, O_RDWR);
@@ -52,21 +52,38 @@ int main(int argc, char * argv[]){
             int len = atoi(argv[2]);
             char * buf = (char *)malloc(len * sizeof(char));
             read(fd, buf, len);
-            printf("read from kernel: %s", buf);
+            printf("%s\n", buf);
         }
         else if(0 == strcmp(argv[3], "write")){
             printf("%s\n", tip_info[RIGHT]);
             
             int len = atoi(argv[2]);
             char * buf = (char *)malloc(len * sizeof(char));
-            write(fd, buf, len);
+            int i = 0;
+            i = write(fd, buf, len);
 
-            if( *argv[1] == 51)
+            if( *argv[1] == 51){
                 printf("Terminated\n");
+            }
+                
             else
                 printf("Wrote %s bytes.\n", argv[2]);
         }
     }
+    return 0;
+}
 
+int judge_digit(char * src){
+
+    char * temp = src;
+    while(*temp){
+        if( *temp < '0' || *temp > '9' )
+            return 1;
+        temp++;
+    }
+
+    int src_size = atoi(src);
+    if( src_size > 65538 )
+        return 1;
     return 0;
 }
