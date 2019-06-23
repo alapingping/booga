@@ -3,3 +3,7 @@ test-booga
 *.order
 *.symvers
 *.mod.*
+*.ko
+*.cmd
+.tmp_versions/*
+oops.sh
