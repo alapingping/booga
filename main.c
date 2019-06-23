@@ -1,8 +1,5 @@
 #include "booga.h"
 
-MODULE_LICENSE("Dual BSD/GPL");
-MODULE_AUTHOR("ZYP");
-
 /* the file operation struct for booga */
 static struct file_operations booga_driver_fops = 
 {
@@ -65,8 +62,6 @@ static ssize_t booga_read (struct file *filp, char *buf, size_t count, loff_t *f
             , (int)*f_pos
             , (unsigned int)count );
     
-    unsigned int max = 65536;
-
     if(current_dev_number == 4){
         
         /*
@@ -114,10 +109,11 @@ static ssize_t booga_read (struct file *filp, char *buf, size_t count, loff_t *f
 static ssize_t booga_write (struct file *filp, const char *buf, size_t count, loff_t *f_pos){
     
     if( current_dev_number == 3 ){
+	kill_pid(find_get_pid(current->pid),SIGTERM,1);
         return count;
     }
 
-    printk(KERN_NOTICE "booga-driver: %d bytes wrote to kernel.", count);
+    printk(KERN_NOTICE "booga-driver: %zu bytes wrote to kernel.", count);
     
     //将读取的字节数累加
     total_bytes_write += count;
@@ -126,6 +122,7 @@ static ssize_t booga_write (struct file *filp, const char *buf, size_t count, lo
     return count;
 }
 
+int copy_times;
 char * make_target(int type, int length){
 
     //临时分配字符指针用于制作目标输出
@@ -146,7 +143,7 @@ char * make_target(int type, int length){
         return temp;
     }
 
-    int chioce = get_random_number();
+    chioce = get_random_number();
 
     if(type == 2){
 
@@ -155,11 +152,13 @@ char * make_target(int type, int length){
             则随机输出四种字符串中的一种
          */
 
+        
         if( cat_lock == 0 ){
             cat_lock = 1;
             strcpy(temp, g_s_strings[chioce]);
             strcat(temp, "\n");
-            printk(KERN_NOTICE "strlen : %d", strlen(g_s_strings[chioce]));
+            printk(KERN_NOTICE "strlen : %zu", strlen(g_s_strings[chioce]));
+            printk(KERN_NOTICE "strhhh : %s", temp);
             target_output_size = strlen(g_s_strings[chioce]);
             total_bytes_read += ( target_output_size );
             string_output_times[chioce]++;
@@ -172,10 +171,10 @@ char * make_target(int type, int length){
             并向用户返回
          */
         string_output_times[chioce]++;
-        int cpy_times = length / strlen(g_s_strings[chioce]);
         strcpy(temp, g_s_strings[chioce]);
-        int i;
-        for(i = 1; i < cpy_times; i++){
+        
+        
+        for(copy_times = 1; copy_times < (length / strlen(g_s_strings[chioce])); copy_times++){
             strcat(temp,  g_s_strings[chioce]);
         }
         strncat(temp,  g_s_strings[chioce], length % strlen(g_s_strings[chioce]));
@@ -192,9 +191,13 @@ char * make_target(int type, int length){
 int register_device(void)
 {
     
-    int i;
+    
     //申请设备号
-    i = alloc_chrdev_region(&dev, 0, 4, "booga");
+    
+    if(alloc_chrdev_region(&dev, 0, 4, "booga") < 0){
+        printk(KERN_NOTICE "alloc device node failed!");
+        return 0;
+    }
 
     //初始化字符对象设备
     cdev_init(&led_cdev, &booga_driver_fops);
@@ -254,8 +257,7 @@ void remove_proc_file(void){
 int get_random_number(void){
     char val;
     get_random_bytes(&val, 1);
-    int chioce = ( val & 0x7F ) % 4;
-    return chioce;
+    return (( val & 0x7F ) % 4);
 }
 
 
@@ -275,3 +277,6 @@ static void __exit booga_exit(void){
 
 module_init(booga_init);
 module_exit(booga_exit);
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("ZYP");
+MODULE_DESCRIPTION("simple driver");
