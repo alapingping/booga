@@ -13,11 +13,15 @@
 #include <linux/device.h>   /* class stuff */
 #include <linux/cdev.h>     /* char device stuff */
 #include <linux/string.h>   /* strlen strcat strcpy */
-
-
+#include <linux/pid.h>	    /* find_get_pid() */
+#include <linux/sched.h>    /* kill_pid() */
+#include <asm/current.h>    /* current */
+#include <linux/signal.h>   /* SIGTERM */
 
 #define SUCCESS 0
 #define TOTAL_BOOGA_DEV 4
+
+extern int kill_pid(struct pid *pid, int sig, int priv);
 
 /**
  * 功能：在/proc/driver/内创建booga文件
@@ -104,6 +108,11 @@ static int target_output_size;
 static int current_dev_number;
 //cat锁，避免cat时重复计数
 static int cat_lock = 0;
+//默认count值
+static const unsigned int max = 65536;
 
 char * temp;
+//随机数
+int chioce;
+
 #endif

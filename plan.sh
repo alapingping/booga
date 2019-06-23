@@ -14,6 +14,7 @@ cat /proc/driver/booga
 
 echo "------------------cat /dev/booga1------------------"
 cat /dev/booga1
+echo ""
 
 echo "------------------test-booga------------------"
 ./test-booga
@@ -36,7 +37,7 @@ echo "------------------test-booga 1 100 read------------------"
 echo "------------------cat /proc/driver/booga------------------"
 cat /proc/driver/booga
 
-echo "------------------test-booga 3 100 read------------------"
+echo "------------------test-booga 3 100 write------------------"
 ./test-booga 3 100 write
 
 make unload

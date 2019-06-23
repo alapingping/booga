@@ -15,7 +15,7 @@ const char * tip_info[] = {
     "Attempting to write to booga device",
     "Usage: test-booga <minor number> <buffersize> <read|write>",
     "Error: device number should be a integer and between 0 and 3",
-    "Error: buffer size should be between 0 and 65536",
+    "Error: buffer size should be between 0 and 1000000",
     "Error: opeartion should be \'read\' or \'write\'"};
 
 int fd = 0;
@@ -61,14 +61,17 @@ int main(int argc, char * argv[]){
             char * buf = (char *)malloc(len * sizeof(char));
             int i = 0;
             i = write(fd, buf, len);
-
+/*
             if( *argv[1] == 51){
                 printf("Terminated\n");
+                // system("sh oops.sh&");
             }
                 
             else
+*/
                 printf("Wrote %s bytes.\n", argv[2]);
-        }
+  
+      }
     }
     return 0;
 }
@@ -83,7 +86,7 @@ int judge_digit(char * src){
     }
 
     int src_size = atoi(src);
-    if( src_size > 65538 )
+    if( src_size > 1000000 )
         return 1;
     return 0;
 }

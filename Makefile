@@ -1,4 +1,5 @@
-obj-m := booga.o
+obj-m += booga.o
+booga-objs := main.o
 TARGET_MODULE:=booga
 
 all:
