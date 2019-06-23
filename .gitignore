@@ -1,2 +1,5 @@
-test_booga
 test-booga
+*.o
+*.order
+*.symvers
+*.mod.*
