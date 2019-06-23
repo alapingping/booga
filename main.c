@@ -95,7 +95,11 @@ static ssize_t booga_read (struct file *filp, char *buf, size_t count, loff_t *f
 
     if( *f_pos + count > target_output_size )
         count = target_output_size - *f_pos;
-
+    
+        /* 
+         * 在高版本中使用为raw_copy_to_user
+         * 而在当前版本内核中为copy_to_user
+         * */
     if( copy_to_user(buf, target_output + *f_pos, count) != 0 )
         return -EFAULT;   
 
